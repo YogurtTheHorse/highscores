@@ -10,8 +10,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-
 app.MapPost(
     "/api/scores/{leaderboard}/add/{name}/{value:long}/{time:double=0}",
     async (LeaderboardService lb, string leaderboard, string name, long value, double? time) =>
@@ -63,5 +61,7 @@ app.MapGet(
         return Results.Ok(score);
     }
 );
+
+app.MapGet("/info", () => "hello");
 
 app.Run();
