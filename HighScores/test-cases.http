@@ -1,0 +1,59 @@
+
+### Create simple score
+POST {{host}}/api/scores/test-leaderboard/add/yogurt/1000/
+Content-Type: application/json
+
+
+### Create simple score 2
+POST {{host}}/api/scores/test-leaderboard/add/kib/1100/
+Content-Type: application/json
+
+
+### Create simple score 3
+POST {{host}}/api/scores/test-leaderboard/add/iorving/900/
+Content-Type: application/json
+
+
+### Create simple score 4
+POST {{host}}/api/scores/test-leaderboard/add/iorving/1500/
+Content-Type: application/json
+
+
+### Create simple score 5
+POST {{host}}/api/scores/test-leaderboard/add/seryiza/2000/
+Content-Type: application/json
+
+
+### Check scores
+GET {{host}}/api/scores/test-leaderboard/10
+Content-Type: application/json
+
+
+### Clear scores
+POST {{host}}/api/scores/test-leaderboard/clear
+Content-Type: application/json
+
+
+### Check first 3 scores after clear
+GET {{host}}/api/scores/test-leaderboard/3
+Content-Type: application/json
+
+
+### Delete seryiza score
+DELETE {{host}}/api/scores/test-leaderboard/delete/seryiza
+Content-Type: application/json
+
+
+### Get yogurt score
+GET {{host}}/api/scores/test-leaderboard/by/yogurt
+Content-Type: application/json
+
+
+### Add time to yogurt score
+POST {{host}}/api/scores/test-leaderboard/add/yogurt/900/3.4
+Content-Type: application/json
+
+
+### Check first 3 scores after delete
+GET {{host}}/api/scores/test-leaderboard/3
+Content-Type: application/json

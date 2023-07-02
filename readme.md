@@ -1,0 +1,1 @@
+Simple micro-service for saving high-scores in redis. test-cases.http for example usage
