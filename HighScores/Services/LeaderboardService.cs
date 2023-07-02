@@ -17,8 +17,8 @@ public class LeaderboardService
     {
         var scoreId = $"score:{leaderboard}:{name}";
 
-        var updatedScore = await _database.SortedSetAddAsync($"lb:{leaderboard}", scoreId, value);
-        
+        var updatedScore = await _database.SortedSetUpdateAsync($"lb:{leaderboard}", scoreId, value, SortedSetWhen.GreaterThan);
+
         if (updatedScore)
         {
             await _database.HashSetAsync(scoreId,
