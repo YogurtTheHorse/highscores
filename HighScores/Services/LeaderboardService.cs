@@ -33,7 +33,8 @@ public class LeaderboardService
         var scoresIds = await _database.SortedSetRangeByScoreAsync(
             $"lb:{leaderboard}",
             skip: offset,
-            take: count
+            take: count,
+            order: Order.Descending
         );
 
         List<Score> scores = new();
