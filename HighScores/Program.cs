@@ -62,6 +62,6 @@ app.MapGet(
     }
 );
 
-app.MapGet("/info", () => "hello");
+app.MapGet("/", () => Results.Ok("im alive"));
 
 app.Run();
