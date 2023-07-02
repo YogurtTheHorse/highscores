@@ -41,10 +41,10 @@ app.MapDelete(
 );
 
 app.MapGet(
-    "/api/scores/{leaderboard}/{count:int}",
-    async (LeaderboardService lb, string leaderboard, int count, [FromQuery] int? offset) =>
+    "/api/scores/{leaderboard}/{count:int?}",
+    async (LeaderboardService lb, string leaderboard, int? count, [FromQuery] int? offset) =>
     {
-        var scores = await lb.GetScores(leaderboard, count, offset ?? 0);
+        var scores = await lb.GetScores(leaderboard, count ?? -1 , offset ?? 0);
 
         return Results.Ok(new {
             Scores = scores
