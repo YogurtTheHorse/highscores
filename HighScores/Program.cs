@@ -10,30 +10,50 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
 var app = builder.Build();
 
-app.MapPost(
-    "/api/v1/scores/{leaderboard}/add/{name}/{value:long}/{time:double=0}",
-    async (LeaderboardService lb, string leaderboard, string name, long value, double? time) =>
+app.MapGet(
+    "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
+    async (LeaderboardService lb, long leaderboard, string secret, string name, long value, double time) =>
     {
-        await lb.AddScore(leaderboard, name, value, time ?? 0);
+        if (!await lb.CheckSecret(leaderboard, secret))
+        {
+            return Results.Forbid();
+        }
+
+        await lb.AddScore(leaderboard, name, value, time);
 
         return Results.Ok();
     }
 );
 
-app.MapPost(
-    "/api/v1/scores/{leaderboard}/clear",
-    async (LeaderboardService lb, string leaderboard) =>
+app.MapGet(
+    "/api/v1/leaderboards/new",
+    async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
+);
+
+app.MapGet(
+    "/api/v1/scores/{leaderboard:long}/{secret}/clear",
+    async (LeaderboardService lb, long leaderboard, string secret) =>
     {
+        if (!await lb.CheckSecret(leaderboard, secret))
+        {
+            return Results.Forbid();
+        }
+
         await lb.Clear(leaderboard);
 
         return Results.Ok();
     }
 );
 
-app.MapDelete(
-    "/api/v1/scores/{leaderboard}/delete/{name}",
-    async (LeaderboardService lb, string leaderboard, string name) =>
+app.MapGet(
+    "/api/v1/scores/{leaderboard:long}/{secret}/delete/{name}",
+    async (LeaderboardService lb, long leaderboard, string secret, string name) =>
     {
+        if (!await lb.CheckSecret(leaderboard, secret))
+        {
+            return Results.Forbid();
+        }
+
         await lb.Delete(leaderboard, name);
 
         return Results.Ok();
@@ -41,10 +61,10 @@ app.MapDelete(
 );
 
 app.MapGet(
-    "/api/v1/scores/{leaderboard}/{count:int?}",
-    async (LeaderboardService lb, string leaderboard, int? count, [FromQuery] int? offset) =>
+    "/api/v1/scores/{leaderboard:long}/{count:int?}",
+    async (LeaderboardService lb, long leaderboard, int? count, [FromQuery] int? offset) =>
     {
-        var scores = await lb.GetScores(leaderboard, count ?? -1 , offset ?? 0);
+        var scores = await lb.GetScores(leaderboard, count ?? -1, offset ?? 0);
 
         return Results.Ok(new {
             Scores = scores
@@ -53,8 +73,8 @@ app.MapGet(
 );
 
 app.MapGet(
-    "/api/v1/scores/{leaderboard}/by/{name}",
-    async (LeaderboardService lb, string leaderboard, string name, [FromQuery] int? offset) =>
+    "/api/v1/scores/{leaderboard:long}/by/{name}",
+    async (LeaderboardService lb, long leaderboard, string name, [FromQuery] int? offset) =>
     {
         var score = await lb.GetScore(leaderboard, name);
 

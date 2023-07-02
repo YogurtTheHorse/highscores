@@ -1,59 +1,68 @@
+### Create leaderboard
+GET {{host}}/api/v1/leaderboards/new
+
+> {%
+    client.global.set("secret", response.body.secret);
+
+    client.global.set("lb", response.body.id);
+%}
+
 
 ### Create simple score
-POST {{host}}/api/v1/scores/test-leaderboard/add/yogurt/1000/
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/yogurt/1000/
 Content-Type: application/json
 
 
 ### Create simple score 2
-POST {{host}}/api/v1/scores/test-leaderboard/add/kib/1100/
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/kib/1100/
 Content-Type: application/json
 
 
 ### Create simple score 3
-POST {{host}}/api/v1/scores/test-leaderboard/add/iorving/900/
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/900/
 Content-Type: application/json
 
 
 ### Create simple score 4
-POST {{host}}/api/v1/scores/test-leaderboard/add/iorving/1500/
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/1500/
 Content-Type: application/json
 
 
 ### Create simple score 5
-POST {{host}}/api/v1/scores/test-leaderboard/add/seryiza/2000/
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/seryiza/2000/
 Content-Type: application/json
 
 
 ### Check scores
-GET {{host}}/api/v1/scores/test-leaderboard/10
+GET {{host}}/api/v1/scores/{{lb}}/10
 Content-Type: application/json
 
 
 ### Clear scores
-POST {{host}}/api/v1/scores/test-leaderboard/clear
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/clear
 Content-Type: application/json
 
 
 ### Check first 3 scores after clear
-GET {{host}}/api/v1/scores/test-leaderboard/3
+GET {{host}}/api/v1/scores/{{lb}}/3
 Content-Type: application/json
 
 
 ### Delete seryiza score
-DELETE {{host}}/api/v1/scores/test-leaderboard/delete/seryiza
+GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/delete/seryiza
 Content-Type: application/json
 
 
 ### Get yogurt score
-GET {{host}}/api/v1/scores/test-leaderboard/by/yogurt
+GET {{host}}/api/v1/scores/{{lb}}/by/yogurt
 Content-Type: application/json
 
 
 ### Add time to yogurt score
-POST {{host}}/api/v1/scores/test-leaderboard/add/yogurt/900/3.4
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/yogurt/900/3.4
 Content-Type: application/json
 
 
 ### Check first 3 scores after delete
-GET {{host}}/api/v1/scores/test-leaderboard/3
+GET {{host}}/api/v1/scores/{{lb}}/3
 Content-Type: application/json
