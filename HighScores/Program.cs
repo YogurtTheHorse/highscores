@@ -11,7 +11,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 var app = builder.Build();
 
 app.MapPost(
-    "/api/scores/{leaderboard}/add/{name}/{value:long}/{time:double=0}",
+    "/api/v1/scores/{leaderboard}/add/{name}/{value:long}/{time:double=0}",
     async (LeaderboardService lb, string leaderboard, string name, long value, double? time) =>
     {
         await lb.AddScore(leaderboard, name, value, time ?? 0);
@@ -21,7 +21,7 @@ app.MapPost(
 );
 
 app.MapPost(
-    "/api/scores/{leaderboard}/clear",
+    "/api/v1/scores/{leaderboard}/clear",
     async (LeaderboardService lb, string leaderboard) =>
     {
         await lb.Clear(leaderboard);
@@ -31,7 +31,7 @@ app.MapPost(
 );
 
 app.MapDelete(
-    "/api/scores/{leaderboard}/delete/{name}",
+    "/api/v1/scores/{leaderboard}/delete/{name}",
     async (LeaderboardService lb, string leaderboard, string name) =>
     {
         await lb.Delete(leaderboard, name);
@@ -41,7 +41,7 @@ app.MapDelete(
 );
 
 app.MapGet(
-    "/api/scores/{leaderboard}/{count:int?}",
+    "/api/v1/scores/{leaderboard}/{count:int?}",
     async (LeaderboardService lb, string leaderboard, int? count, [FromQuery] int? offset) =>
     {
         var scores = await lb.GetScores(leaderboard, count ?? -1 , offset ?? 0);
@@ -53,7 +53,7 @@ app.MapGet(
 );
 
 app.MapGet(
-    "/api/scores/{leaderboard}/by/{name}",
+    "/api/v1/scores/{leaderboard}/by/{name}",
     async (LeaderboardService lb, string leaderboard, string name, [FromQuery] int? offset) =>
     {
         var score = await lb.GetScore(leaderboard, name);
