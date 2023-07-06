@@ -47,7 +47,7 @@ By making simple POST request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/
 | SECRET | string | no       | Secret of leaderboard you got when created it      |
 | NAME   | string | no       | Name of user that would appear in leaderboard      |
 | SCORE  | long   | no       | Score of user that would appear in score           |
-| TIME   | double | yes      | Time user needed to make that record. Default is 0 |
+| TIME   | double | yes      | Time it took to make that record. Default is 0     |
 
 ## Getting leaderboard
 You can see last N scores by making GET request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/N. For example, you can see this page:
