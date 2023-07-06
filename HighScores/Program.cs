@@ -11,6 +11,11 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 var app = builder.Build();
 
 app.MapGet(
+    "/api/v1/leaderboards/new",
+    async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
+);
+
+app.MapPost(
     "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
     async (LeaderboardService lb, long leaderboard, string secret, string name, long value, double time) =>
     {
@@ -25,13 +30,8 @@ app.MapGet(
     }
 );
 
-app.MapGet(
-    "/api/v1/leaderboards/new",
-    async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
-);
-
-app.MapGet(
-    "/api/v1/scores/{leaderboard:long}/{secret}/clear",
+app.MapDelete(
+    "/api/v1/scores/{leaderboard:long}/{secret}",
     async (LeaderboardService lb, long leaderboard, string secret) =>
     {
         if (!await lb.CheckSecret(leaderboard, secret))
@@ -45,8 +45,8 @@ app.MapGet(
     }
 );
 
-app.MapGet(
-    "/api/v1/scores/{leaderboard:long}/{secret}/delete/{name}",
+app.MapDelete(
+    "/api/v1/scores/{leaderboard:long}/{secret}/by/{name}",
     async (LeaderboardService lb, long leaderboard, string secret, string name) =>
     {
         if (!await lb.CheckSecret(leaderboard, secret))
