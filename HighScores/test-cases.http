@@ -9,27 +9,27 @@ GET {{host}}/api/v1/leaderboards/new
 
 
 ### Create simple score
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/yogurt/1000/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/yogurt/1000/
 Content-Type: application/json
 
 
 ### Create simple score 2
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/kib/1100/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/kib/1100/
 Content-Type: application/json
 
 
 ### Create simple score 3
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/900/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/900/
 Content-Type: application/json
 
 
 ### Create simple score 4
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/1500/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/iorving/1500/
 Content-Type: application/json
 
 
 ### Create simple score 5
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/seryiza/2000/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/seryiza/2000/
 Content-Type: application/json
 
 
@@ -39,7 +39,7 @@ Content-Type: application/json
 
 
 ### Clear scores
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/clear
+DELETE {{host}}/api/v1/scores/{{lb}}/{{secret}}
 Content-Type: application/json
 
 
