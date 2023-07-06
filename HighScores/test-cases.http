@@ -49,7 +49,7 @@ Content-Type: application/json
 
 
 ### Delete seryiza score
-GET {{host}}/api/v1/scores/{{lb}}/{{secret}}/delete/seryiza
+DELETE {{host}}/api/v1/scores/{{lb}}/{{secret}}/by/seryiza
 Content-Type: application/json
 
 
@@ -64,5 +64,5 @@ Content-Type: application/json
 
 
 ### Check first 3 scores after delete
-GET {{host}}/api/v1/scores/{{lb}}/3
+GET {{host}}/api/v1/scores/{{lb}}/10
 Content-Type: application/json
