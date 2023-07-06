@@ -70,9 +70,9 @@ public class LeaderboardService
         return scores.ToArray();
     }
 
-    public async Task<Score> GetScore(long leaderboard, string name) => await GetScore($"score:{leaderboard}:{name}");
+    public async Task<Score?> GetScore(long leaderboard, string name) => await GetScore($"score:{leaderboard}:{name}");
 
-    private async Task<Score> GetScore(string key)
+    private async Task<Score?> GetScore(string key)
     {
         var values = await _database.HashGetAsync(
             key,
@@ -80,6 +80,8 @@ public class LeaderboardService
                 "name", "value", "time"
             }
         );
+
+        if (values[0].IsNull) return null;
 
         return new Score(values[0].ToString(), (long)values[1], (double)values[2]);
     }

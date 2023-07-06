@@ -96,7 +96,9 @@ app.MapGet(
     {
         var score = await lb.GetScore(leaderboard, name);
 
-        return Results.Ok(score);
+        return score is null
+            ? Results.NotFound() 
+            : Results.Ok(score);
     }
 );
 
