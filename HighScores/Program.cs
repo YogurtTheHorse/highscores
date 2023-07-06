@@ -2,13 +2,31 @@ using HighScores.Services;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 
+const string CorsPolicyName = "_allowAllOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis") ?? string.Empty);
 
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: CorsPolicyName,
+        b => b
+            .WithOrigins("*")
+            .AllowAnyOrigin() 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    );
+});
+builder.Services.AddResponseCaching(o => { o.UseCaseSensitivePaths = true; });
+
+
 var app = builder.Build();
+
+app.UseCors(CorsPolicyName);
 
 app.MapGet(
     "/api/v1/leaderboards/new",
