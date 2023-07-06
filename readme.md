@@ -20,8 +20,8 @@ This project is build to use with Docker, but any other ASP.NET Core hosting sol
 
 When using with Docker it's easier to use environment variable containg this connection string. It should be called `DOTNET_ConnectionStrings__Redis`. 
 
-# Using
-For example HTTP requests, please refer to [http-cases.http](HighScores/test-cases.http). This project has a publicly available hosted node located at https://lb.yogurtthehor.se/. Currently it doesn't have any frontpage, but you for now you can freely use it
+# Usage
+For examples of HTTP requests, please refer to [http-cases.http](HighScores/test-cases.http). This project has a publicly available hosted node located at https://lb.yogurtthehor.se/. Currently it doesn't have any frontpage, but you for now you can freely use it
 
 All futher examples would be made using publicly available host
 
