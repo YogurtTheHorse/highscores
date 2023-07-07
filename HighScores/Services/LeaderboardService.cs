@@ -1,10 +1,7 @@
+using HighScores.Models;
 using StackExchange.Redis;
 
 namespace HighScores.Services;
-
-public record Score(string Name, long Value, double Time);
-
-public record LeaderBoard(long Id, string Secret);
 
 public class LeaderboardService
 {
