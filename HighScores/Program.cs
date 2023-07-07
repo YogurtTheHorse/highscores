@@ -44,6 +44,7 @@ builder.Services
 var app = builder.Build();
 
 app.UseCors(corsPolicyName);
+app.UseRateLimiter();
 
 app.MapGet(
     "/api/v1/leaderboards/new",
