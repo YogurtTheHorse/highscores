@@ -14,7 +14,7 @@ Content-Type: application/json
 
 
 ### Create simple score 2
-POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/kib/1100/
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/kib erptah/1100/
 Content-Type: application/json
 
 
@@ -66,3 +66,26 @@ Content-Type: application/json
 ### Check first 3 scores after delete
 GET {{host}}/api/v1/scores/{{lb}}/10
 Content-Type: application/json
+
+
+### try to create with wrong name
+POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/фывфы/1000/
+Content-Type: application/json
+
+> {%
+    client.test("bad request", function () {
+        client.assert(response.status === 400, "Response status is not 400");
+    })
+%}
+
+
+
+### try to access unexisted leaderboard id
+GET {{host}}/api/v1/scores/9999999/10
+Content-Type: application/json
+
+> {%
+    client.test("not found", function () {
+        client.assert(response.status === 404, "Response status is not 404");
+    })
+%}
