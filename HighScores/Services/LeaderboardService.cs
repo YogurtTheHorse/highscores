@@ -48,10 +48,15 @@ public class LeaderboardService
         }
     }
 
-    public async Task<Score[]> GetScores(long leaderboard, int count, int offset)
+    public async Task<Score[]?> GetScores(long leaderboard, int count, int offset)
     {
+        var key = $"lb:{leaderboard}";
+
+        if (!await _database.KeyExistsAsync(key))
+            return null;
+        
         var scoresIds = await _database.SortedSetRangeByScoreAsync(
-            $"lb:{leaderboard}",
+            key,
             skip: offset,
             take: count,
             order: Order.Descending
@@ -61,7 +66,14 @@ public class LeaderboardService
 
         foreach (var scoreId in scoresIds)
         {
-            scores.Add(await GetScore(scoreId.ToString()));
+            var score = await GetScore(scoreId.ToString());
+
+            if (score is null)
+            {
+                continue;
+            }
+            
+            scores.Add(score);
         }
 
         return scores.ToArray();

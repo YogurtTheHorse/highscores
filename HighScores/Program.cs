@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
         name: CorsPolicyName,
         b => b
             .WithOrigins("*")
-            .AllowAnyOrigin() 
+            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader()
     );
@@ -84,9 +84,11 @@ app.MapGet(
     {
         var scores = await lb.GetScores(leaderboard, count ?? -1, offset ?? 0);
 
-        return Results.Ok(new {
-            Scores = scores
-        });
+        return scores is null
+            ? Results.NotFound()
+            : Results.Ok(new {
+                Scores = scores
+            });
     }
 );
 
@@ -97,7 +99,7 @@ app.MapGet(
         var score = await lb.GetScore(leaderboard, name);
 
         return score is null
-            ? Results.NotFound() 
+            ? Results.NotFound()
             : Results.Ok(score);
     }
 );
