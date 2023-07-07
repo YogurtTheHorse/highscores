@@ -74,13 +74,11 @@ public class LeaderboardService
 
     public async Task<Score[]?> GetScores(long leaderboard, int count, int offset)
     {
-        var key = $"lb:{leaderboard}";
-
-        if (!await _database.KeyExistsAsync(key))
+        if (!await _database.KeyExistsAsync($"lb-info:{leaderboard}"))
             return null;
 
         var scoresIds = await _database.SortedSetRangeByScoreAsync(
-            key,
+            $"lb:{leaderboard}",
             skip: offset,
             take: count,
             order: Order.Descending
