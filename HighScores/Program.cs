@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
     );
 });
-builder.Services.AddResponseCaching(o => { o.UseCaseSensitivePaths = true; });
+builder.Services.AddAuthentication();
 
 
 var app = builder.Build();
