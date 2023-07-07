@@ -21,7 +21,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
     );
 });
-builder.Services.AddAuthentication();
 
 
 var app = builder.Build();
@@ -39,7 +38,7 @@ app.MapPost(
     {
         if (!await lb.CheckSecret(leaderboard, secret))
         {
-            return Results.Forbid();
+            return Results.StatusCode(403);
         }
 
         await lb.AddScore(leaderboard, name, value, time);
@@ -54,7 +53,7 @@ app.MapDelete(
     {
         if (!await lb.CheckSecret(leaderboard, secret))
         {
-            return Results.Forbid();
+            return Results.StatusCode(403);
         }
 
         await lb.Clear(leaderboard);
@@ -69,7 +68,7 @@ app.MapDelete(
     {
         if (!await lb.CheckSecret(leaderboard, secret))
         {
-            return Results.Forbid();
+            return Results.StatusCode(403);
         }
 
         await lb.Delete(leaderboard, name);
