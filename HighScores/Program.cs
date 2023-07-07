@@ -13,6 +13,7 @@ var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnect
 builder.Services.AddScoped<NameValidator>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+builder.Services.AddLogging();
 
 builder.Services.AddCors(options =>
 {

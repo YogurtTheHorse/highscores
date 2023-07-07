@@ -5,15 +5,19 @@ namespace HighScores.Services;
 
 public class LeaderboardService
 {
+    private readonly ILogger<LeaderboardService> _logger;
     private readonly IDatabase _database;
 
-    public LeaderboardService(IConnectionMultiplexer redis)
+    public LeaderboardService(IConnectionMultiplexer redis, ILogger<LeaderboardService> logger)
     {
+        _logger = logger;
         _database = redis.GetDatabase();
     }
 
     public async Task<LeaderBoard> CreateLeaderboard()
     {
+        _logger.LogInformation("Creating new leaderboard...");
+
         var id = await _database.StringIncrementAsync("lb-counter");
         var secret = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
@@ -22,6 +26,8 @@ public class LeaderboardService
             new HashEntry[] {
                 new("id", id), new("secret", secret)
             });
+
+        _logger.LogInformation("Created leaderboard with ID {id}...", id);
 
         return new LeaderBoard(id, secret);
     }
@@ -35,12 +41,30 @@ public class LeaderboardService
 
     public async Task AddScore(long leaderboard, string name, long value, double time)
     {
+        _logger.LogInformation(
+            "Updating score of leaderboard {lid} for {name} to {value}...",
+            leaderboard,
+            name,
+            value
+        );
+
         var scoreId = $"score:{leaderboard}:{name}";
 
-        var updatedScore = await _database.SortedSetUpdateAsync($"lb:{leaderboard}", scoreId, value, SortedSetWhen.GreaterThan);
+        var updatedScore = await _database.SortedSetUpdateAsync(
+            $"lb:{leaderboard}",
+            scoreId,
+            value,
+            SortedSetWhen.GreaterThan
+        );
 
         if (updatedScore)
         {
+            _logger.LogInformation(
+                "Updating player info of leaderboard {lid} for {name}...",
+                leaderboard,
+                name
+            );
+
             await _database.HashSetAsync(scoreId,
                 new HashEntry[] {
                     new("name", name), new("value", value), new("time", time)
@@ -54,7 +78,7 @@ public class LeaderboardService
 
         if (!await _database.KeyExistsAsync(key))
             return null;
-        
+
         var scoresIds = await _database.SortedSetRangeByScoreAsync(
             key,
             skip: offset,
@@ -72,7 +96,7 @@ public class LeaderboardService
             {
                 continue;
             }
-            
+
             scores.Add(score);
         }
 
@@ -97,11 +121,15 @@ public class LeaderboardService
 
     public async Task Clear(long leaderboard)
     {
+        _logger.LogInformation("Clearing {lid} leaderboard", leaderboard);
+
         await _database.KeyDeleteAsync($"lb:{leaderboard}");
     }
 
     public async Task Delete(long leaderboard, string name)
     {
+        _logger.LogInformation("Deleting score of {name} in {lid} leaderboard", name, leaderboard);
+
         await _database.SortedSetRemoveAsync($"lb:{leaderboard}", $"score:{leaderboard}:{name}");
     }
 }
