@@ -1,8 +1,11 @@
+using System.Threading.RateLimiting;
 using HighScores.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using StackExchange.Redis;
 
-const string CorsPolicyName = "_allowAllOrigins";
+const string corsPolicyName = "_allowAllOrigins";
+const string newLeaderboardRateLimitPolicyName = "new-leaderboards-rate-limit";
 
 var builder = WebApplication.CreateBuilder(args);
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis") ?? string.Empty);
@@ -14,7 +17,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        name: CorsPolicyName,
+        name: corsPolicyName,
         b => b
             .WithOrigins("*")
             .AllowAnyOrigin()
@@ -23,15 +26,28 @@ builder.Services.AddCors(options =>
     );
 });
 
+builder.Services
+    .AddRateLimiter(_ => _
+        .AddFixedWindowLimiter(
+            policyName: newLeaderboardRateLimitPolicyName,
+            options =>
+            {
+                options.PermitLimit = 10;
+                options.Window = TimeSpan.FromSeconds(1);
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                options.QueueLimit = 2;
+            })
+    );
+
 
 var app = builder.Build();
 
-app.UseCors(CorsPolicyName);
+app.UseCors(corsPolicyName);
 
 app.MapGet(
     "/api/v1/leaderboards/new",
     async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
-);
+).RequireRateLimiting(newLeaderboardRateLimitPolicyName);
 
 app.MapPost(
     "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
