@@ -7,6 +7,7 @@ const string CorsPolicyName = "_allowAllOrigins";
 var builder = WebApplication.CreateBuilder(args);
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis") ?? string.Empty);
 
+builder.Services.AddScoped<NameValidator>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
@@ -34,11 +35,24 @@ app.MapGet(
 
 app.MapPost(
     "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
-    async (LeaderboardService lb, long leaderboard, string secret, string name, long value, double time) =>
+    async (
+        LeaderboardService lb,
+        NameValidator nameValidator,
+        long leaderboard,
+        string secret,
+        string name,
+        long value,
+        double time
+    ) =>
     {
         if (!await lb.CheckSecret(leaderboard, secret))
         {
             return Results.StatusCode(403);
+        }
+
+        if (!nameValidator.IsValidName(name))
+        {
+            return Results.BadRequest();
         }
 
         await lb.AddScore(leaderboard, name, value, time);
@@ -64,11 +78,16 @@ app.MapDelete(
 
 app.MapDelete(
     "/api/v1/scores/{leaderboard:long}/{secret}/by/{name}",
-    async (LeaderboardService lb, long leaderboard, string secret, string name) =>
+    async (LeaderboardService lb, NameValidator nameValidator, long leaderboard, string secret, string name) =>
     {
         if (!await lb.CheckSecret(leaderboard, secret))
         {
             return Results.StatusCode(403);
+        }
+
+        if (!nameValidator.IsValidName(name))
+        {
+            return Results.BadRequest();
         }
 
         await lb.Delete(leaderboard, name);
@@ -93,9 +112,14 @@ app.MapGet(
 
 app.MapGet(
     "/api/v1/scores/{leaderboard:long}/by/{name}",
-    async (LeaderboardService lb, long leaderboard, string name, [FromQuery] int? offset) =>
+    async (LeaderboardService lb, NameValidator nameValidator, long leaderboard, string name, [FromQuery] int? offset) =>
     {
         var score = await lb.GetScore(leaderboard, name);
+
+        if (!nameValidator.IsValidName(name))
+        {
+            return Results.BadRequest();
+        }
 
         return score is null
             ? Results.NotFound()
