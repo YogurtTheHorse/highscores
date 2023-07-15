@@ -89,7 +89,7 @@ public class LeaderboardService
                 });
         }
 
-        var place = await _database.SortedSetRankAsync($"lb:{leaderboard}", scoreId);
+        var place = await _database.SortedSetRankAsync($"lb:{leaderboard}", scoreId, Order.Descending);
 
         return place.HasValue
             ? place.Value + 1
