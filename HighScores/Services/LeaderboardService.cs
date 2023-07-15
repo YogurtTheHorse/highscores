@@ -57,7 +57,7 @@ public class LeaderboardService
         return token == secret;
     }
 
-    public async Task AddScore(long leaderboard, string name, long value, double time)
+    public async Task<long> AddScore(long leaderboard, string name, long value, double time)
     {
         _logger.LogInformation(
             "Updating score of leaderboard {lid} for {name} to {value}...",
@@ -88,6 +88,12 @@ public class LeaderboardService
                     new("name", name), new("value", value), new("time", time)
                 });
         }
+
+        var place = await _database.SortedSetRankAsync($"lb:{leaderboard}", scoreId);
+
+        return place.HasValue
+            ? place.Value + 1
+            : 0;
     }
 
     public async Task<Score[]?> GetScores(long leaderboard, int count, int offset)

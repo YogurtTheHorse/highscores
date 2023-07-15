@@ -73,9 +73,11 @@ app.MapPost(
             return Results.BadRequest();
         }
 
-        await lb.AddScore(leaderboard, name, value, time);
+        var place = await lb.AddScore(leaderboard, name, value, time);
 
-        return Results.Ok();
+        return Results.Ok(new {
+            Place = place
+        });
     }
 );
 
