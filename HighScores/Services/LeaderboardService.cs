@@ -20,17 +20,17 @@ public class LeaderboardService
 
         var id = await _database.StringIncrementAsync("lb-counter");
         var secret = Guid.NewGuid().ToString().Replace("-", string.Empty);
-        var modifySecret = Guid.NewGuid().ToString().Replace("-", string.Empty);
+        var privateSecret = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
         await _database.HashSetAsync(
             $"lb-info:{id}",
             new HashEntry[] {
-                new("id", id), new("secret", secret), new("removal-secret", modifySecret),
+                new("id", id), new("secret", secret), new("private-secret", privateSecret),
             });
 
         _logger.LogInformation("Created leaderboard with ID {id}...", id);
 
-        return new LeaderBoard(id, secret, modifySecret);
+        return new LeaderBoard(id, secret, privateSecret);
     }
 
     public async Task<string> GetAppendSecret(long leaderboard) =>
@@ -38,10 +38,10 @@ public class LeaderboardService
 
     public async Task<string> GetModifySecret(long leaderboard)
     {
-        if (await _database.HashExistsAsync($"lb-info:{leaderboard}", "removal-secret"))
+        if (await _database.HashExistsAsync($"lb-info:{leaderboard}", "private-secret"))
         {
             return (
-                await _database.HashGetAsync($"lb-info:{leaderboard}", "removal-secret")
+                await _database.HashGetAsync($"lb-info:{leaderboard}", "private-secret")
             ).ToString();
         }
 
