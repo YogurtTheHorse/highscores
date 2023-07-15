@@ -63,7 +63,7 @@ app.MapPost(
         double time
     ) =>
     {
-        if (!await lb.CheckSecret(leaderboard, secret))
+        if (!await lb.CheckSecret(leaderboard, secret, false))
         {
             return Results.StatusCode(403);
         }
@@ -83,7 +83,7 @@ app.MapDelete(
     "/api/v1/scores/{leaderboard:long}/{secret}",
     async (LeaderboardService lb, long leaderboard, string secret) =>
     {
-        if (!await lb.CheckSecret(leaderboard, secret))
+        if (!await lb.CheckSecret(leaderboard, secret, true))
         {
             return Results.StatusCode(403);
         }
@@ -98,7 +98,7 @@ app.MapDelete(
     "/api/v1/scores/{leaderboard:long}/{secret}/by/{name}",
     async (LeaderboardService lb, NameValidator nameValidator, long leaderboard, string secret, string name) =>
     {
-        if (!await lb.CheckSecret(leaderboard, secret))
+        if (!await lb.CheckSecret(leaderboard, secret, true))
         {
             return Results.StatusCode(403);
         }
