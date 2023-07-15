@@ -23,7 +23,7 @@ When using with Docker it's easier to use environment variable containg this con
 # Usage
 For examples of HTTP requests, please refer to [http-cases.http](HighScores/test-cases.http). This project has a publicly available hosted node located at https://lb.yogurtthehor.se/. Currently it doesn't have any frontpage, but you for now you can freely use it
 
-All futher examples would be made using publicly available host
+All further examples would be made using publicly available host
 
 ## Creating leaderboard
 First, you need to create a leaderboard. For that, simply make a GET request or open in browser this link: https://lb.yogurtthehor.se/api/v1/leaderboards/new
@@ -32,11 +32,12 @@ It would return JSON object containing id of leaderboard and its secret you can 
 ```json
 {
   "id": 10,
-  "secret": "bla-bla-bla"
+  "secret": "bla-bla-bla",
+  "privateSecret": "bla-bla-bla"
 }
 ```
 
-Please, store these values, as they cannot be retrived later. Also try not to show secret publicly as it would allow to freely work with your leaderboard. It's understandable that hiding this token still impossible due way of how this project is build. Any simple digging into source code (or even into binaries) or traffic sniffing would allow to get secret key, though it's usually in your best interest to make it as diffficult as possible
+Please, store these values, as they cannot be retrieved later. Also try not to show secret publicly as it would allow to freely work with your leaderboard. It's understandable that hiding this token still impossible due way of how this project is build. Any simple digging into source code (or even into binaries) or traffic sniffing would allow to get secret key, though it's usually in your best interest to make it as diffficult as possible
 
 ## Uploading score
 By making simple POST request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/SECRET/add/NAME/SCORE/TIME you can upload your score. Those are params:
@@ -53,7 +54,7 @@ By making simple POST request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/
 You can see last N scores by making GET request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/N. For example, you can see this page:
 https://lb.yogurtthehor.se/api/v1/scores/9
 
-It would return object with simillar structure:
+It would return object with similar structure:
 ```json
 {
   "scores": [
@@ -76,6 +77,8 @@ N parameter is optional and can be omited, in that case API would return all rec
 You can also get score of some specific user with links like this https://lb.yogurtthehor.se/api/v1/scores/9/by/Yogurt. It would response with same object array of "scores" contained previously
 
 ## Deleting scores
+When deleting scores or leaderboards instead of regular secret use ModifySecret you also get when creating leaderboard
+
 By making DELETE request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/SECRET/by/NAME score would be deleted from database. Not only the last one, but all user data
 
 By making DELETE request to https://lb.yogurtthehor.se/api/v1/scores/LB_ID/SECRET all scores would be deleted entirely
@@ -86,7 +89,7 @@ You can check [http-cases.http](HighScores/test-cases.http) for some not covered
 # Consideration
 To use it with WebGL builds CORS are enabled by default for any endpoint and HTTPS is also supported and used as main protocol. 
 
-You should also consider that this API is not produciton ready in any way and made just for my pet project. You should not rely on it as it's very easy to steal secret and put some fake scores or even delete all of that. I may create another super secret string in the future especially for score deletment to make it impossible to use same token for uploading and removal of scores, but that's in TO-DO list
+You should also consider that this API is not production ready in any way and made just for my pet project. You should not rely on it as it's very easy to steal secret and put some fake scores or even delete all of that. I may create another super secret string in the future especially for score deletment to make it impossible to use same token for uploading and removal of scores, but that's in TO-DO list
 
 # Unity integration
 I am going to make a paid Unity Asset with some very small price that would be a form of support of this project, as it's very easy to write methods to use such APIs, but as for now it's in development 
