@@ -1,4 +1,4 @@
-Simple micro-service for saving high-scores in redis. With free to use node in case you don't want to host it yourself
+Simple micro-service for saving high-scores in redis. With free to use node in case you don't want to host it yourself with [Unity integration](#unity-integration)
 
 # Hosting
 This project is build to use with Docker, but any other ASP.NET Core hosting solutions would be fine. To start you need to setup Redis database and provide connection string in format of StackExchange.Redis [connection strings](https://stackexchange.github.io/StackExchange.Redis/Configuration#basic-configuration-strings). For example by adding it to appsettings.json like that:
@@ -92,8 +92,9 @@ To use it with WebGL builds CORS are enabled by default for any endpoint and HTT
 You should also consider that this API is not production ready in any way and made just for my pet project. You should not rely on it as it's very easy to steal secret and put some fake scores or even delete all of that. I may create another super secret string in the future especially for score deletment to make it impossible to use same token for uploading and removal of scores, but that's in TO-DO list
 
 # Unity integration
-I am going to make a paid Unity Asset with some very small price that would be a form of support of this project, as it's very easy to write methods to use such APIs, but as for now it's in development 
+You can buy a basic implementation of Unity integration on itch here: https://yogurtthehorse.itch.io/leaderboards
 
+It's more of an act of support, because HTTP API is very simple and very easy to implement, but still this code is based upong my real Jam game :)
 
 
 
