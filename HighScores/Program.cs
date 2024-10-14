@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using HighScores.Models;
 using HighScores.Services;
@@ -40,7 +42,11 @@ builder.Services
                 options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 options.QueueLimit = 2;
             })
-    );
+    )
+    .ConfigureHttpJsonOptions(opts =>
+    {
+        opts.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    });
 
 
 var app = builder.Build();
@@ -50,8 +56,30 @@ app.UseRateLimiter();
 
 app.MapGet(
     "/api/v1/leaderboards/new",
-    async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
-).RequireRateLimiting(newLeaderboardRateLimitPolicyName);
+    async (
+        LeaderboardService lb,
+        [FromQuery] ScoresDirection direction = ScoresDirection.Descending,
+        [FromQuery] ScoresOrderBy orderBy = ScoresOrderBy.Value
+    ) =>
+    {
+        if (direction is not ScoresDirection.Ascending and not ScoresDirection.Descending)
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Invalid direction"
+            });
+        }
+
+        if (orderBy is not ScoresOrderBy.Value and not ScoresOrderBy.Time)
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Invalid order by"
+            });
+        }
+
+        return Results.Ok(await lb.CreateLeaderboard(direction, orderBy));
+    }).RequireRateLimiting(newLeaderboardRateLimitPolicyName);
 
 app.MapPost(
     "/api/v1/leaderboards/{leaderboard:long}/{secret}/webhook",
