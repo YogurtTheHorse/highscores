@@ -33,7 +33,7 @@ public class LeaderboardService
         return new LeaderBoard(id, secret, privateSecret);
     }
 
-    public async Task SetWebhook(long leaderboard, string webhook)
+    public async Task SetWebhook(long leaderboard, string? webhook)
     {
         _logger.LogInformation("Setting webhook for leaderboard {lid}...", leaderboard);
 

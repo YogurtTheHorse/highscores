@@ -52,7 +52,6 @@ app.MapGet(
     async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
 ).RequireRateLimiting(newLeaderboardRateLimitPolicyName);
 
-
 app.MapPost(
     "/api/v1/leaderboards/{leaderboard:long}/{secret}/webhook",
     async (
@@ -66,7 +65,7 @@ app.MapPost(
         {
             return Results.StatusCode(403);
         }
-        
+
         await lb.SetWebhook(leaderboard, webhook);
 
         return Results.Ok(new
@@ -75,6 +74,30 @@ app.MapPost(
         });
     }
 );
+
+app.MapDelete(
+    "/api/v1/leaderboards/{leaderboard:long}/{secret}/webhook",
+    async (
+        LeaderboardService lb,
+        long leaderboard,
+        string secret
+    ) =>
+    {
+        if (!await lb.CheckSecret(leaderboard, secret, true))
+        {
+            return Results.StatusCode(403);
+        }
+
+        await lb.SetWebhook(leaderboard, null);
+
+        return Results.Ok(new
+        {
+            Webhook = default(string),
+            Info = "Deleted"
+        });
+    }
+);
+
 app.MapPost(
     "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
     async (
@@ -100,7 +123,7 @@ app.MapPost(
 
         var place = await lb.AddScore(leaderboard, name, value, time);
         var webhook = await lb.GetWebhook(leaderboard);
-        
+
         if (!string.IsNullOrEmpty(webhook))
         {
             var client = clientFactory.CreateClient();
@@ -113,7 +136,8 @@ app.MapPost(
             });
         }
 
-        return Results.Ok(new {
+        return Results.Ok(new
+        {
             Place = place
         });
     }
@@ -162,7 +186,8 @@ app.MapGet(
 
         return scores is null
             ? Results.NotFound()
-            : Results.Ok(new {
+            : Results.Ok(new
+            {
                 Scores = scores
             });
     }
@@ -170,7 +195,8 @@ app.MapGet(
 
 app.MapGet(
     "/api/v1/scores/{leaderboard:long}/by/{name}",
-    async (LeaderboardService lb, NameValidator nameValidator, long leaderboard, string name, [FromQuery] int? offset) =>
+    async (LeaderboardService lb, NameValidator nameValidator, long leaderboard, string name,
+        [FromQuery] int? offset) =>
     {
         var score = await lb.GetScore(leaderboard, name);
 
