@@ -43,9 +43,15 @@ public class LeaderboardService
             webhook
         );
     }
-    
-    public async Task<string> GetWebhook(long leaderboard) =>
-        (await _database.HashGetAsync($"lb-info:{leaderboard}", "webhook")).ToString();
+
+    public async Task<string?> GetWebhook(long leaderboard)
+    {
+        var webhookValue = await _database.HashGetAsync($"lb-info:{leaderboard}", "webhook");
+        
+        return webhookValue.IsNullOrEmpty || !webhookValue.HasValue
+            ? null
+            : webhookValue.ToString();
+    }
 
     public async Task<string> GetAppendSecret(long leaderboard) =>
         (await _database.HashGetAsync($"lb-info:{leaderboard}", "secret")).ToString();
