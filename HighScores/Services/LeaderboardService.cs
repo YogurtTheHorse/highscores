@@ -33,6 +33,20 @@ public class LeaderboardService
         return new LeaderBoard(id, secret, privateSecret);
     }
 
+    public async Task SetWebhook(long leaderboard, string webhook)
+    {
+        _logger.LogInformation("Setting webhook for leaderboard {lid}...", leaderboard);
+
+        await _database.HashSetAsync(
+            $"lb-info:{leaderboard}",
+            "webhook",
+            webhook
+        );
+    }
+    
+    public async Task<string> GetWebhook(long leaderboard) =>
+        (await _database.HashGetAsync($"lb-info:{leaderboard}", "webhook")).ToString();
+
     public async Task<string> GetAppendSecret(long leaderboard) =>
         (await _database.HashGetAsync($"lb-info:{leaderboard}", "secret")).ToString();
 

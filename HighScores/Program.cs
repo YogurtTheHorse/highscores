@@ -13,6 +13,7 @@ var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnect
 builder.Services.AddScoped<NameValidator>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+builder.Services.AddHttpClient();
 builder.Services.AddLogging();
 
 builder.Services.AddCors(options =>
@@ -51,11 +52,35 @@ app.MapGet(
     async (LeaderboardService lb) => Results.Ok(await lb.CreateLeaderboard())
 ).RequireRateLimiting(newLeaderboardRateLimitPolicyName);
 
+
+app.MapPost(
+    "/api/v1/leaderboards/{leaderboard:long}/{secret}/webhook",
+    async (
+        LeaderboardService lb,
+        long leaderboard,
+        string secret,
+        string webhook
+    ) =>
+    {
+        if (!await lb.CheckSecret(leaderboard, secret, true))
+        {
+            return Results.StatusCode(403);
+        }
+        
+        await lb.SetWebhook(leaderboard, webhook);
+
+        return Results.Ok(new
+        {
+            Webhook = webhook
+        });
+    }
+);
 app.MapPost(
     "/api/v1/scores/{leaderboard:long}/{secret}/add/{name}/{value:long}/{time:double=0}",
     async (
         LeaderboardService lb,
         NameValidator nameValidator,
+        IHttpClientFactory clientFactory,
         long leaderboard,
         string secret,
         string name,
@@ -74,6 +99,19 @@ app.MapPost(
         }
 
         var place = await lb.AddScore(leaderboard, name, value, time);
+        var webhook = await lb.GetWebhook(leaderboard);
+        
+        if (!string.IsNullOrEmpty(webhook))
+        {
+            var client = clientFactory.CreateClient();
+            await client.PostAsJsonAsync(webhook, new
+            {
+                Name = name,
+                Value = value,
+                Time = time,
+                Place = place
+            });
+        }
 
         return Results.Ok(new {
             Place = place
