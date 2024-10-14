@@ -56,21 +56,19 @@ public class LeaderboardService
             $"lb-info:{leaderboard}",
             new RedisValue[]
             {
-                "direction", "order-by"
+                "id", "direction", "order-by"
             }
         );
-
-        if (values[0].IsNull) return null;
 
 
         return new BaseLeaderBoard
         {
             Id = leaderboard,
-            Direction = values[0].HasValue
-                ? Enum.Parse<ScoresDirection>(values[0].ToString())
+            Direction = values[1].HasValue
+                ? Enum.Parse<ScoresDirection>(values[1].ToString())
                 : ScoresDirection.Descending,
-            OrderBy = values[1].HasValue
-                ? Enum.Parse<ScoresOrderBy>(values[1].ToString())
+            OrderBy = values[2].HasValue
+                ? Enum.Parse<ScoresOrderBy>(values[2].ToString())
                 : ScoresOrderBy.Value
         };
     }
