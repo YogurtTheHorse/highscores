@@ -3,10 +3,25 @@ GET {{host}}/api/v1/leaderboards/new
 
 > {%
     client.global.set("secret", response.body.secret);
+    
+    client.global.set("private_secret", response.body.privateSecret);
 
     client.global.set("lb", response.body.id);
 %}
 
+
+### Create webhook
+POST {{host}}/api/v1/leaderboards/{{lb}}/{{private_secret}}/webhook
+Content-Type: application/json
+
+{
+  "url": "https://localhost:3000/scores-webhook"
+}
+
+
+### Delete webhook
+DELETE {{host}}/api/v1/leaderboards/{{lb}}/{{private_secret}}/webhook
+Content-Type: application/json
 
 ### Create simple score
 POST {{host}}/api/v1/scores/{{lb}}/{{secret}}/add/yogurt/1000/
