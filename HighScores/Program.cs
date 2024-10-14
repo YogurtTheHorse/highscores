@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using HighScores.Models;
 using HighScores.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -58,7 +59,7 @@ app.MapPost(
         LeaderboardService lb,
         long leaderboard,
         string secret,
-        string webhook
+        [FromBody] WebhookModel webhook
     ) =>
     {
         if (!await lb.CheckSecret(leaderboard, secret, true))
@@ -66,11 +67,29 @@ app.MapPost(
             return Results.StatusCode(403);
         }
 
-        await lb.SetWebhook(leaderboard, webhook);
+        var uri = new Uri(webhook.Url, UriKind.Absolute);
+
+        if (uri.Scheme != Uri.UriSchemeHttps)
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Only HTTPS is allowed"
+            });
+        }
+
+        if (uri.HostNameType != UriHostNameType.Dns || !uri.IsDefaultPort || !uri.Host.Contains('.'))
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Invalid hostname"
+            });
+        }
+
+        await lb.SetWebhook(leaderboard, uri.ToString());
 
         return Results.Ok(new
         {
-            Webhook = webhook
+            Webhook = uri.ToString()
         });
     }
 );
