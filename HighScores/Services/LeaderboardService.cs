@@ -82,29 +82,20 @@ public class LeaderboardService
         );
     }
 
-    public async Task<string?> GetWebhook(long leaderboard)
-    {
-        var webhookValue = await _database.HashGetAsync($"lb-info:{leaderboard}", "webhook");
-
-        return webhookValue.IsNullOrEmpty || !webhookValue.HasValue
-            ? null
-            : webhookValue.ToString();
-    }
+    public async Task<string?> GetWebhook(long leaderboard) =>
+        await _database.HashGetAsync($"lb-info:{leaderboard}", "webhook") switch
+        {
+            { IsNull: false } webhookValue => webhookValue.ToString(),
+            _ => null
+        };
 
     public async Task<string> GetAppendSecret(long leaderboard) =>
         (await _database.HashGetAsync($"lb-info:{leaderboard}", "secret")).ToString();
 
-    public async Task<string> GetModifySecret(long leaderboard)
-    {
-        if (await _database.HashExistsAsync($"lb-info:{leaderboard}", "private-secret"))
-        {
-            return (
-                await _database.HashGetAsync($"lb-info:{leaderboard}", "private-secret")
-            ).ToString();
-        }
-
-        return await GetAppendSecret(leaderboard);
-    }
+    public async Task<string> GetModifySecret(long leaderboard) =>
+        await _database.HashExistsAsync($"lb-info:{leaderboard}", "private-secret")
+            ? (await _database.HashGetAsync($"lb-info:{leaderboard}", "private-secret")).ToString()
+            : await GetAppendSecret(leaderboard);
 
     public async Task<bool> CheckSecret(long leaderboard, string secret, bool forModify)
     {
@@ -155,7 +146,9 @@ public class LeaderboardService
 
             await _database.HashSetAsync(scoreId,
             [
-                new("name", name), new("value", value), new("time", time)
+                new("name", name),
+                new("value", value),
+                new("time", time)
             ]);
         }
 
@@ -201,10 +194,7 @@ public class LeaderboardService
             var scoreId = scoresIds[i];
             var score = await GetScore(scoreId.ToString());
 
-            if (score is null)
-            {
-                continue;
-            }
+            if (score is null) continue;
 
             scores.Add(score with
             {
@@ -225,19 +215,13 @@ public class LeaderboardService
             null => null
         };
 
-    private async Task<Score?> GetScore(string key)
-    {
-        var values = await _database.HashGetAsync(
-            key,
-            [
-                "name", "value", "time"
-            ]
-        );
-
-        return values[0].IsNull
-            ? null
-            : new Score(values[0].ToString(), (long)values[1], (double)values[2], null);
-    }
+    private async Task<Score?> GetScore(string key) =>
+        await _database.HashGetAsync(key, ["name", "value", "time"]) switch
+        {
+            [{ IsNull: true }, ..] => null,
+            [var name, var value, var time] => new Score(name.ToString(), (long)value, (double)time, null),
+            _ => null
+        };
 
     public async Task Clear(long leaderboard)
     {
