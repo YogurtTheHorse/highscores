@@ -1,6 +1,6 @@
 namespace HighScores.Models;
 
-public record Score(string Name, long Value, double Time);
+public record Score(string Name, long Value, double Time, long? Place);
 
 public record BaseLeaderBoard
 {

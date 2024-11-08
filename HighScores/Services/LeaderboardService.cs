@@ -27,14 +27,13 @@ public class LeaderboardService
 
         await _database.HashSetAsync(
             $"lb-info:{id}",
-            new HashEntry[]
-            {
+            [
                 new("id", id),
                 new("secret", secret),
                 new("private-secret", privateSecret),
                 new("direction", scoresDirection.ToString()),
                 new("order-by", orderBy.ToString())
-            });
+            ]);
 
         _logger.LogInformation("Created leaderboard with ID {id}...", id);
 
@@ -54,10 +53,9 @@ public class LeaderboardService
 
         var values = await _database.HashGetAsync(
             $"lb-info:{leaderboard}",
-            new RedisValue[]
-            {
+            [
                 "id", "direction", "order-by"
-            }
+            ]
         );
 
 
@@ -156,10 +154,9 @@ public class LeaderboardService
             );
 
             await _database.HashSetAsync(scoreId,
-                new HashEntry[]
-                {
-                    new("name", name), new("value", value), new("time", time)
-                });
+            [
+                new("name", name), new("value", value), new("time", time)
+            ]);
         }
 
         var place = await _database.SortedSetRankAsync(
@@ -177,7 +174,7 @@ public class LeaderboardService
             : 0;
     }
 
-    public async Task<Score[]?> GetScores(long leaderboard, int count, int offset, bool reverse = false)
+    public async Task<Score[]?> GetScores(long leaderboard, int count, int skip, bool reverse = false)
     {
         var leaderboardInfo = await GetBaseLeaderboard(leaderboard);
         if (leaderboardInfo is null)
@@ -185,7 +182,7 @@ public class LeaderboardService
 
         var scoresIds = await _database.SortedSetRangeByScoreAsync(
             $"lb:{leaderboard}",
-            skip: offset,
+            skip: skip,
             take: count,
             order: (leaderboardInfo.Direction, reverse) switch
             {
@@ -197,10 +194,11 @@ public class LeaderboardService
             }
         );
 
-        List<Score> scores = new();
+        List<Score> scores = [];
 
-        foreach (var scoreId in scoresIds)
+        for (var i = 0; i < scoresIds.Length; i++)
         {
+            var scoreId = scoresIds[i];
             var score = await GetScore(scoreId.ToString());
 
             if (score is null)
@@ -208,27 +206,37 @@ public class LeaderboardService
                 continue;
             }
 
-            scores.Add(score);
+            scores.Add(score with
+            {
+                Place = skip + i + 1
+            });
         }
 
         return scores.ToArray();
     }
 
-    public async Task<Score?> GetScore(long leaderboard, string name) => await GetScore($"score:{leaderboard}:{name}");
+    public async Task<Score?> GetScore(long leaderboard, string name) =>
+        await GetScore($"score:{leaderboard}:{name}") switch
+        {
+            { } score => score with
+            {
+                Place = 1 + await _database.SortedSetRankAsync($"lb:{leaderboard}", $"score:{leaderboard}:{name}")
+            },
+            null => null
+        };
 
     private async Task<Score?> GetScore(string key)
     {
         var values = await _database.HashGetAsync(
             key,
-            new RedisValue[]
-            {
+            [
                 "name", "value", "time"
-            }
+            ]
         );
 
-        if (values[0].IsNull) return null;
-
-        return new Score(values[0].ToString(), (long)values[1], (double)values[2]);
+        return values[0].IsNull
+            ? null
+            : new Score(values[0].ToString(), (long)values[1], (double)values[2], null);
     }
 
     public async Task Clear(long leaderboard)

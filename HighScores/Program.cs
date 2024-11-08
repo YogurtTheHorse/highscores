@@ -227,9 +227,10 @@ app.MapDelete(
 
 app.MapGet(
     "/api/v1/scores/{leaderboard:long}/{count:int?}",
-    async (LeaderboardService lb, long leaderboard, int? count, [FromQuery] int? offset) =>
+    // offset will be dropped in favor of skip
+    async (LeaderboardService lb, long leaderboard, int? count, [FromQuery] int? skip, [FromQuery] int? offset) =>
     {
-        var scores = await lb.GetScores(leaderboard, count ?? -1, offset ?? 0);
+        var scores = await lb.GetScores(leaderboard, count ?? -1, skip ?? offset ?? 0);
 
         return scores is null
             ? Results.NotFound()
